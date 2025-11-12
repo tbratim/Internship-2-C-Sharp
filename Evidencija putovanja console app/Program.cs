@@ -1,12 +1,107 @@
-﻿namespace Evidencija_putovanja_console_app
+﻿using System.Globalization;
+using System.Numerics;
+
+namespace Evidencija_putovanja_console_app
 {
     internal class Program
     {
         static void Main(string[] args)
         {
             Console.WriteLine("APLIKACIJA ZA EVIDENCIJU GORIVA");
-            
+            //var users = new Dictionary<int, Tuple<string, string, DateTime, List<string>>>();
+            //var trips = new Dictionary<int, Tuple<DateTime, double, double, double, double>>(); //brojevi tip?
+            //var listOfTrips = new List<Dictionary<int, Tuple<DateTime, double, double, double, double>>>();
+            //these are for later use
+            static DateTime CheckDateInput(string input)
+            {
+                while (true)
+                {
+                    if (DateTime.TryParseExact(input, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+                    {
+                        if (date.Date > DateTime.Today)
+                            Console.WriteLine("Neispravan unos, datum ne smije biti u budućnosti!\nUnesite datum: ");
+                        else return date;
+                    }
+                    else Console.WriteLine("Neispravan format!\nUnesite datum: ");
+
+                    input = Console.ReadLine();
+                }
+            }
+
+            static int CheckIntInput(string input)
+            {
+                int number;
+                while (true)
+                {
+                    if (int.TryParse(input, out number))
+                    {
+                        if (number > 0)
+                            return number;
+                        else Console.WriteLine("Neispravan unos!\nUnesite pozitivan broj: ");
+                    }
+                    else Console.WriteLine("Neispravan unos!\nUnesite cijeli broj: ");
+
+                    input = Console.ReadLine();
+                }
+            }
+
+            static double CheckDoubleInput(string input)
+            {
+                double number;
+                while (true)
+                {
+                    if (double.TryParse(input, out number))
+                    {
+                        if (number > 0)
+                            return number;
+                        else Console.WriteLine("Neispravan unos!\nUnesite pozitivan broj: ");
+                    }
+                    else Console.WriteLine("Neispravan unos!\nUnesite broj: ");
+
+                    input = Console.ReadLine();
+                }
+
+            }
+
+            static string CheckStringInput(string input)
+            {
+                while (true)
+                {
+                    if (input=="")
+                        Console.WriteLine("Neispravan unos!\nPokušajte ponovno: ");
+                    else return input;
+
+                    input = Console.ReadLine();
+                }
+            }
+
+            static void InputUser()
+            {
+                Console.WriteLine("Unesite id korisnika: ");
+                int idKorisnik = CheckIntInput(Console.ReadLine()); //.
+                Console.WriteLine("Unesite ime: ");
+                string name = CheckStringInput(Console.ReadLine());
+                Console.WriteLine("Unesite prezime: ");
+                string surname = CheckStringInput(Console.ReadLine());
+                Console.WriteLine("Unesite datum rođenja: ");
+                DateTime dateOfBirth = CheckDateInput(Console.ReadLine());
+                //missing list of travels
+                var userAttributes = (Id: idKorisnik, Name: name, Surname: surname, DateOfBirth: dateOfBirth);
+                Console.WriteLine(userAttributes.ToString());
+            }
+
+            static void InputTrip()
+            {
+                //odaberi korisnika
+
+                Console.WriteLine("Unesite kilometražu: ");
+                Console.WriteLine("Unesite potrošeno gorivo: ");
+                Console.WriteLine("Unesite cijenu po litri: ");
+                Console.WriteLine("Putovanje uspješno dodano!");
+            }
+
             var menuChoice = "";
+            //string? menuChoice = null;
             do
             {
                 Console.WriteLine("Izbornik:\n1 - Korisnici\n2 - Putovanja\n0 - Izlaz iz aplikacije");
@@ -25,6 +120,7 @@
                             {
                                 case "1":
                                     Console.WriteLine("Unos novog korisnika");
+                                    InputUser();
                                     break;
                                 case "2":
                                     Console.WriteLine("Brisanje korisnika");
@@ -35,7 +131,7 @@
                                 case "4":
                                     Console.WriteLine("Pregled svih korisnika");
                                     break;
-                                default:
+                                default: //odradi i kad upise 0
                                     Console.WriteLine("Pogrešan unos!");
                                     break;
                             }
