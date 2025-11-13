@@ -8,10 +8,10 @@ namespace Evidencija_putovanja_console_app
         static void Main(string[] args)
         {
             Console.WriteLine("APLIKACIJA ZA EVIDENCIJU GORIVA");
-            //var users = new Dictionary<int, Tuple<string, string, DateTime, List<string>>>();
-            //var trips = new Dictionary<int, Tuple<DateTime, double, double, double, double>>(); //brojevi tip?
-            //var listOfTrips = new List<Dictionary<int, Tuple<DateTime, double, double, double, double>>>();
-            //these are for later use
+            var users = new Dictionary<int, Tuple<string, string, DateTime, List<Dictionary<int, Tuple<DateTime, double, double, double, double>>>>>();
+            var trips = new Dictionary<int, Tuple<DateTime, double, double, double, double>>();
+            var listOfTrips = new List<Dictionary<int, Tuple<DateTime, double, double, double, double>>>();
+
             static DateTime CheckDateInput(string input)
             {
                 while (true)
@@ -74,30 +74,121 @@ namespace Evidencija_putovanja_console_app
                     input = Console.ReadLine();
                 }
             }
-
-            static void InputUser()
+            //InputUser and InputTrip incomplete!
+            static void InputUser(Dictionary<int, Tuple<string, string, DateTime, List<Dictionary<int, Tuple<DateTime, double, double, double, double>>>>> userDictionary)
             {
                 Console.WriteLine("Unesite id korisnika: ");
-                int idKorisnik = CheckIntInput(Console.ReadLine()); //.
+                int idKorisnik = CheckIntInput(Console.ReadLine());
+                while (userDictionary.ContainsKey(idKorisnik))
+                {
+                    Console.WriteLine("Id već postoji!\nUnesite id korisnika: ");
+                    idKorisnik = CheckIntInput(Console.ReadLine());
+                }
                 Console.WriteLine("Unesite ime: ");
                 string name = CheckStringInput(Console.ReadLine());
                 Console.WriteLine("Unesite prezime: ");
                 string surname = CheckStringInput(Console.ReadLine());
-                Console.WriteLine("Unesite datum rođenja: ");
+                Console.WriteLine("Unesite datum rođenja (yyyy-MM-dd): ");
                 DateTime dateOfBirth = CheckDateInput(Console.ReadLine());
                 //missing list of travels
-                var userAttributes = (Id: idKorisnik, Name: name, Surname: surname, DateOfBirth: dateOfBirth);
-                Console.WriteLine(userAttributes.ToString());
+                var userAttributes = (Name: name, Surname: surname, DateOfBirth: dateOfBirth);
+                //Console.WriteLine(userAttributes.ToString());
+                //InputTrip();
             }
 
-            static void InputTrip()
+            static void InputTrip(Dictionary<int, Tuple<DateTime, double, double, double, double>> tripDictionary)
             {
                 //odaberi korisnika
-
+                Console.WriteLine("Unesite id putovanja: ");
+                int idTrip = CheckIntInput(Console.ReadLine());
+                while (tripDictionary.ContainsKey(idTrip))
+                {
+                    Console.WriteLine("Id već postoji!\nUnesite id putovanja: ");
+                    idTrip = CheckIntInput(Console.ReadLine());
+                }
+                Console.WriteLine("Unesite datum putovanja (yyyy-MM-dd): ");
+                DateTime dateOfTrip = CheckDateInput(Console.ReadLine());
                 Console.WriteLine("Unesite kilometražu: ");
+                double kilometers = CheckDoubleInput(Console.ReadLine());
                 Console.WriteLine("Unesite potrošeno gorivo: ");
+                double fuelUsed = CheckDoubleInput(Console.ReadLine());
                 Console.WriteLine("Unesite cijenu po litri: ");
+                double priceOfFuel = CheckDoubleInput(Console.ReadLine());
+
+                var tripAttributes = (Date: dateOfTrip, Km: kilometers, Fuel: fuelUsed, Price: priceOfFuel);
+
                 Console.WriteLine("Putovanje uspješno dodano!");
+            }
+
+            static void DeleteUserById(int id, Dictionary<int, Tuple<string, string, DateTime, List<Dictionary<int, Tuple<DateTime, double, double, double, double>>>>> userDictionary)
+            {
+                if (userDictionary.Count==0)
+                {
+                    Console.WriteLine("Nema korisnika za brisanje.");
+                    return;
+                }
+                while (!userDictionary.ContainsKey(id))
+                {
+                    Console.WriteLine("Id ne postoji!\nUnesite id korisnika kojeg želite izbrisati: ");
+                    id = CheckIntInput(Console.ReadLine());
+                }
+                var user = userDictionary[id];
+                Console.WriteLine($"Jeste li sigurni da želite obrisati {user.Item1} {user.Item2} (da/ne)? ");
+                var confirmation = Console.ReadLine().ToLower().Trim();
+                while (confirmation!="da" && confirmation!="ne")
+                {
+                    Console.WriteLine("Neispravan unos!\nJeste li sigurni da želite obrisati korisnika (da/ne)? ");
+                    confirmation=Console.ReadLine().ToLower().Trim();
+                }
+                if (confirmation=="da")
+                {
+                    userDictionary.Remove(id);
+                    Console.WriteLine($"Korisnik {user.Item1} {user.Item2} uspješno izbrisan!");
+                }
+                else Console.WriteLine("Brisanje korisnika obustavljeno.");
+            }
+
+            static void DeleteUserByName(string name, string surname, Dictionary<int, Tuple<string, string, DateTime, List<Dictionary<int, Tuple<DateTime, double, double, double, double>>>>> userDictionary)
+            {
+                if (userDictionary.Count == 0)
+                {
+                    Console.WriteLine("Nema korisnika za brisanje.");
+                    return;
+                }
+                int userId = -1;
+                name = name.ToLower().Trim();
+                surname = surname.ToLower().Trim();
+                bool exists = false;
+                foreach (var user in userDictionary)
+                {
+                    if (user.Value.Item1.ToLower().Trim()==name && user.Value.Item2.ToLower().Trim() == surname)
+                    {
+                        userId = user.Key;
+                        exists = true;
+                        break;
+                    }
+                }
+                if (exists)
+                {
+                    var user = userDictionary[userId];
+                    Console.WriteLine($"Jeste li sigurni da želite obrisati {user.Item1} {user.Item2} (da/ne)? ");
+                    var confirmation = Console.ReadLine().ToLower().Trim();
+                    while (confirmation != "da" && confirmation != "ne")
+                    {
+                        Console.WriteLine("Neispravan unos!\nJeste li sigurni da želite obrisati korisnika (da/ne)? ");
+                        confirmation = Console.ReadLine().ToLower().Trim();
+                    }
+                    if (confirmation == "da")
+                    {
+                        userDictionary.Remove(userId);
+                        Console.WriteLine($"Korisnik {user.Item1} {user.Item2} uspješno izbrisan!");
+                    }
+                    else Console.WriteLine("Brisanje korisnika obustavljeno.");
+                }
+                else
+                {
+                    Console.WriteLine($"Korisnik {name} {surname} ne postoji!");
+                }
             }
 
             var menuChoice = "";
@@ -116,11 +207,11 @@ namespace Evidencija_putovanja_console_app
                             Console.WriteLine("Korisnici:\n1 - Unos novog korisnika\n2 - Brisanje korisnika\n3 - Uređivanje korisnika\n4 - Pregled svih korisnika\n0 - Povratak na glavni izbornik\n");
                             usersMenuChoice = Console.ReadLine();
                             Console.WriteLine("Odabir: {0}", usersMenuChoice);
-                            switch (usersMenuChoice)
+                            switch (usersMenuChoice) //might change
                             {
                                 case "1":
                                     Console.WriteLine("Unos novog korisnika");
-                                    InputUser();
+                                    InputUser(users);
                                     break;
                                 case "2":
                                     Console.WriteLine("Brisanje korisnika");
