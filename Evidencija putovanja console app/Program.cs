@@ -198,7 +198,7 @@ namespace Evidencija_putovanja_console_app
                     Console.WriteLine($"Korisnik {name} {surname} ne postoji!");
                 }
             }
-            //EditUser fixed
+
             static void EditUser(int id)
             {
                 if (users.Count == 0)
@@ -454,6 +454,33 @@ namespace Evidencija_putovanja_console_app
                 else Console.WriteLine("Uređivanje putovanja obustavljeno.");
             }
 
+            static void FormatedPrintTrips(Dictionary<int, Tuple<DateTime, double, double, double, double>> dictOfTrips)
+            {
+                foreach (var trip in dictOfTrips)
+                {
+                    Console.WriteLine($"Putovanje #{trip.Key}\nDatum: {trip.Value.Item1:yyyy-MM-dd}\nKilometri: {trip.Value.Item2}\n" +
+                        $"Gorivo: {trip.Value.Item3} L\nCijena po litri: {trip.Value.Item4} EUR\nUkupno: {trip.Value.Item5} EUR");
+                }
+            }
+
+            static bool ChoiceAscendDescend()
+            {
+                bool ascending = true;
+                Console.WriteLine("Želite li sortiranje: 1 - silazno ili 2 - uzlazno? ");
+                string input = CheckStringInput(Console.ReadLine());
+                do
+                {
+                    Console.WriteLine("Neispravan unos! Unesite 1 (silazno) ili 2 (uzlazno)");
+                    input = CheckStringInput(Console.ReadLine());
+                }
+                while (input != "1" || input != "2");
+                if (input == "1")
+                    return !ascending;
+                if (input == "2")
+                    return ascending;
+                return true;
+            }
+
             var menuChoice = "";
             do
             {
@@ -576,6 +603,78 @@ namespace Evidencija_putovanja_console_app
                                     break;
                                 case "4":
                                     Console.WriteLine("Pregled svih putovanja");
+                                    string printTripsChoice = "";
+                                    do
+                                    {
+                                        if (trips.Count == 0)
+                                        {
+                                            Console.WriteLine("Nema putovanja.");
+                                            break;
+                                        }
+                                        Console.WriteLine("Ispis svih putovanja sortirano po:\n1 - redom upisa\n2 - trošku (silazno/uzlazno)");
+                                        Console.WriteLine("3 - kilometraži(silazno / uzlazno)\n4 - datumu(silazno / uzlazno)\n0 - povratak na prethodni izbornik");
+                                        printTripsChoice = Console.ReadLine();
+                                        switch(printTripsChoice)
+                                        {
+                                            case "1":
+                                                Console.WriteLine("Putovanja:");
+                                                FormatedPrintTrips(trips);
+                                                break;
+                                            case "2":
+                                                Console.WriteLine("Sortiranje putovanja po trošku:");
+                                                bool ascendingSpent = ChoiceAscendDescend();
+                                                if (ascendingSpent)
+                                                {
+                                                    Console.WriteLine("Ispis putovanja po trošku uzlazno: ");
+                                                    var tripsBySpentAsc = trips.OrderBy(x => x.Value.Item5).ToDictionary(x => x.Key, x => x.Value);
+                                                    FormatedPrintTrips(tripsBySpentAsc);
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine("Ispis putovanja po trošku silazeno: ");
+                                                    var tripsBySpentDesc = trips.OrderByDescending(x => x.Value.Item5).ToDictionary(x => x.Key, x => x.Value);
+                                                    FormatedPrintTrips(tripsBySpentDesc);
+                                                }
+                                                break;
+                                            case "3":
+                                                Console.WriteLine("Sortiranje putovanja po kilometraži:");
+                                                bool ascendingKm = ChoiceAscendDescend();
+                                                if (ascendingKm)
+                                                {
+                                                    Console.WriteLine("Ispis putovanja po trošku uzlazno: ");
+                                                    var tripsByKmAsc = trips.OrderBy(x => x.Value.Item2).ToDictionary(x => x.Key, x => x.Value);
+                                                    FormatedPrintTrips(tripsByKmAsc);
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine("Ispis putovanja po trošku silazeno: ");
+                                                    var tripsByKmDesc = trips.OrderByDescending(x => x.Value.Item2).ToDictionary(x => x.Key, x => x.Value);
+                                                    FormatedPrintTrips(tripsByKmDesc);
+                                                }
+                                                break;
+                                            case "4":
+                                                Console.WriteLine("Sortiranje putovanja po trošku:");
+                                                bool ascendingDate = ChoiceAscendDescend();
+                                                if (ascendingDate)
+                                                {
+                                                    Console.WriteLine("Ispis putovanja po trošku uzlazno: ");
+                                                    var tripsByDateAsc = trips.OrderBy(x => x.Value.Item1).ToDictionary(x => x.Key, x => x.Value);
+                                                    FormatedPrintTrips(tripsByDateAsc);
+                                                }
+                                                else
+                                                {
+                                                    Console.WriteLine("Ispis putovanja po trošku silazeno: ");
+                                                    var tripsByDateDesc = trips.OrderByDescending(x => x.Value.Item1).ToDictionary(x => x.Key, x => x.Value);
+                                                    FormatedPrintTrips(tripsByDateDesc);
+                                                }
+                                                break;
+                                            default:
+                                                if (printTripsChoice != "0")
+                                                    Console.WriteLine("Neispravan unos!");
+                                                break;
+                                        }
+                                    }
+                                    while (printTripsChoice != "0");
                                     break;
                                 case "5":
                                     Console.WriteLine("Izvještaji i analize");
