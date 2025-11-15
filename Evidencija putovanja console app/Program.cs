@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Numerics;
+using System.Xml;
 
 namespace Evidencija_putovanja_console_app
 {
@@ -248,6 +249,11 @@ namespace Evidencija_putovanja_console_app
 
             static void PrintUsers()
             {
+                if (users.Count == 0)
+                {
+                    Console.WriteLine("Ne postoje korisnici za ispisati.");
+                    return;
+                }
                 var printChoice = "";
                 var sortedBySurname = users.OrderBy(x => x.Value.Item2).ToDictionary(x => x.Key, x => x.Value);
                 do
@@ -288,6 +294,105 @@ namespace Evidencija_putovanja_console_app
                 while (printChoice != "0");
             }
 
+            static void DeleteTripById(int id)
+            {
+                if (trips.Count==0)
+                {
+                    Console.WriteLine("Ne postoje putovanja za izbrisati.");
+                    return;
+                }
+                while (!trips.ContainsKey(id))
+                {
+                    Console.WriteLine("Id putovanja ne postoji!");
+                    id = CheckIntInput(Console.ReadLine());
+                }
+                Console.WriteLine($"Jeste li sigurni da želite obrisati {trips[id]} (da/ne)? ");
+                var confirmation = Console.ReadLine().ToLower().Trim();
+                while (confirmation != "da" && confirmation != "ne")
+                {
+                    Console.WriteLine("Neispravan unos!\nJeste li sigurni da želite obrisati putovanje (da/ne)? ");
+                    confirmation = Console.ReadLine().ToLower().Trim();
+                }
+                if (confirmation == "da")
+                {
+                    foreach (var trip in trips.Keys)
+                    {
+                        if (trip == id)
+                            trips.Remove(trip);
+                    }
+                    Console.WriteLine("Putovanje uspješno izbrisano!");
+                }
+                else Console.WriteLine("Brisanje putovanja obustavljeno.");
+            }
+
+            static void DeleteTripExspensive(double maxPrice)
+            {
+                if (trips.Count == 0)
+                {
+                    Console.WriteLine("Ne postoje putovanja za izbrisati.");
+                    return;
+                }
+                int tripCounter = 0;
+                foreach (var trip in trips.Values)
+                {
+                    if (trip.Item5 > maxPrice)
+                        tripCounter++;
+                }
+                Console.WriteLine($"Jeste li sigurni da želite obrisati {tripCounter} putovanja skupljih od {maxPrice} (da/ne)? ");
+                var confirmation = Console.ReadLine().ToLower().Trim();
+                while (confirmation != "da" && confirmation != "ne")
+                {
+                    Console.WriteLine("Neispravan unos!\nJeste li sigurni da želite obrisati putovanja (da/ne)? ");
+                    confirmation = Console.ReadLine().ToLower().Trim();
+                }
+                int tempTripId = -1;
+                if (confirmation == "da")
+                {
+                    foreach (var trip in trips)
+                    {
+                        if (trip.Value.Item5 > maxPrice)
+                            tempTripId = trip.Key;
+                            trips.Remove(tempTripId);
+                    }
+                    Console.WriteLine("Putovanja uspješno izbrisana!");
+                }
+                else Console.WriteLine("Brisanje putovanja obustavljeno.");
+            }
+
+            static void DeleteTripCheap(double minPrice)
+            {
+                if (trips.Count == 0)
+                {
+                    Console.WriteLine("Ne postoje putovanja za izbrisati.");
+                    return;
+                }
+                int tripCounter = 0;
+                foreach (var trip in trips.Values)
+                {
+                    if (trip.Item5 > minPrice)
+                        tripCounter++;
+                }
+                Console.WriteLine($"Jeste li sigurni da želite obrisati {tripCounter} putovanja jeftinijih od {minPrice} (da/ne)? ");
+                var confirmation = Console.ReadLine().ToLower().Trim();
+                while (confirmation != "da" && confirmation != "ne")
+                {
+                    Console.WriteLine("Neispravan unos!\nJeste li sigurni da želite obrisati putovanja (da/ne)? ");
+                    confirmation = Console.ReadLine().ToLower().Trim();
+                }
+                int tempTripId = -1;
+                if (confirmation == "da")
+                {
+                    foreach (var trip in trips)
+                    {
+                        if (trip.Value.Item5 < minPrice)
+                            tempTripId = trip.Key;
+                        trips.Remove(tempTripId);
+                    }
+                    Console.WriteLine("Putovanja uspješno izbrisana!");
+                }
+                else Console.WriteLine("Brisanje putovanja obustavljeno.");
+            }
+
             var menuChoice = "";
             do
             {
@@ -310,12 +415,12 @@ namespace Evidencija_putovanja_console_app
                                     InputUser();
                                     break;
                                 case "2":
-                                    var deleteChoice = "";
+                                    var deleteUserChoice = "";
                                     do
                                     {
                                         Console.WriteLine("Brisanje korisnika:\n1 - Brisanje po id-u\n2 - Brisanje po imenu i prezimenu\n0 - Povratak na prethodni izbornik");
-                                        deleteChoice = Console.ReadLine();
-                                        switch (deleteChoice)
+                                        deleteUserChoice = Console.ReadLine();
+                                        switch (deleteUserChoice)
                                         {
                                             case "1":
                                                 Console.WriteLine("Unesite id korisnika kojeg želite izbrisati: ");
@@ -330,12 +435,12 @@ namespace Evidencija_putovanja_console_app
                                                 DeleteUserByName(nameChoiceDelete, surnameChoiceDelete);
                                                 break;
                                             default:
-                                                if (deleteChoice != "0")
+                                                if (deleteUserChoice != "0")
                                                     Console.WriteLine("Neispravan unos!");
                                                 break;
                                         }
                                     }
-                                    while (deleteChoice != "0");
+                                    while (deleteUserChoice != "0");
                                     break;
                                 case "3":
                                     Console.WriteLine("Uređivanje korisnika");
@@ -367,10 +472,39 @@ namespace Evidencija_putovanja_console_app
                             {
                                 case "1":
                                     Console.WriteLine("Unos novog putovanja");
-                                    
+                                    //var listOfTrips = InputTrip(id);
                                     break;
                                 case "2":
                                     Console.WriteLine("Brisanje putovanja");
+                                    var deleteTripChoice = "";
+                                    do
+                                    {
+                                        Console.WriteLine("1 - Brisanje putovanja po id-u\n2 - Brisanje putovanja skupljih od xx\n3 - Brisanje putovanja jeftinijih od xx");
+                                        deleteTripChoice = Console.ReadLine();
+                                        switch (deleteTripChoice)
+                                        {
+                                            case "1":
+                                                Console.WriteLine("Upišite id putovanja kojeg želite izbrisati: ");
+                                                int idDeleteTrip = CheckIntInput(Console.ReadLine());
+                                                DeleteTripById(idDeleteTrip);
+                                                break;
+                                            case "2":
+                                                Console.WriteLine("Unesi maksimalni iznos: ");
+                                                double maxPrice = CheckDoubleInput(Console.ReadLine());
+                                                DeleteTripExspensive(maxPrice);
+                                                break;
+                                            case "3":
+                                                Console.WriteLine("Unesi minimalni iznos: ");
+                                                double minPrice = CheckDoubleInput(Console.ReadLine());
+                                                DeleteTripCheap(minPrice);
+                                                break;
+                                            default:
+                                                if (deleteTripChoice != "0")
+                                                    Console.WriteLine("Neispravan unos!");
+                                                break;
+                                        }
+                                    }
+                                    while (deleteTripChoice != "0");
                                     break;
                                 case "3":
                                     Console.WriteLine("Uređivanje postojećeg putovanja");
