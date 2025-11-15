@@ -493,6 +493,53 @@ namespace Evidencija_putovanja_console_app
                 return true;
             }
 
+            static void UserAnalysis(int id)
+            {
+                if (users.Count == 0)
+                {
+                    Console.WriteLine("Ne postoje putovanja za izbrisati.");
+                    return;
+                }
+                while (!users.ContainsKey(id))
+                {
+                    Console.WriteLine("Id korisnika ne postoji!");
+                    id = CheckIntInput(Console.ReadLine());
+                }
+                var user = users[id];
+                double totalFuelUsed = 0;
+                double totalKm = 0;
+                double totalSpending = 0;
+                double maxFuelUsed = 0;
+                var longestTrip = (Tuple<int, DateTime, double, double, double, double>)user.Item4[0];
+                foreach (var trip in user.Item4)
+                {
+                    var tripToTuple = (Tuple<int, DateTime, double, double, double, double>)trip;
+                    totalFuelUsed += tripToTuple.Item4;
+                    totalKm += tripToTuple.Item3;
+                    totalSpending += tripToTuple.Item6;
+                    if (tripToTuple.Item3 > maxFuelUsed)
+                    {
+                        maxFuelUsed = tripToTuple.Item3;
+                        longestTrip = tripToTuple;
+                    }
+                }
+                double averageFuelConsumption = (totalFuelUsed*totalKm)/100;
+                Console.WriteLine($"Ukupna potrošnja goriva: {totalFuelUsed}");
+                Console.WriteLine($"Ukupni troškovi goriva: {totalSpending}");
+                Console.WriteLine($"Prosječna potrošnja goriva u L/100km: {averageFuelConsumption}");
+                Console.WriteLine($"Putovanje s najvećom potrošnjom goriva:\nPutovanje #{longestTrip.Item1}\nDatum: {longestTrip.Item2:yyyy-MM-dd}\n"+
+                    $"Kilometraža: {longestTrip.Item3}\nGorivo: {longestTrip.Item4} L\nCijena goriva: {longestTrip.Item5}\nTrošak: {longestTrip.Item6}");
+                Console.WriteLine("Pregled putovanja po datumima:\nUnesite datum: ");
+                DateTime dateForTrips = CheckDateInput(Console.ReadLine());
+                Console.WriteLine($"Putovanja na datum {dateForTrips:yyyy-MM-dd}");
+                foreach (var trip in user.Item4)
+                {
+                    var tripToTuple = (Tuple<int, DateTime, double, double, double, double>)trip;
+                    if (dateForTrips.Date == tripToTuple.Item2.Date)
+                        Console.WriteLine($"Putovanje #{tripToTuple.Item1}\n{tripToTuple.Item3}km - {tripToTuple.Item4} L - {tripToTuple.Item5} EUR - {tripToTuple.Item6} EUR");
+                }
+            }
+
             var menuChoice = "";
             do
             {
@@ -692,6 +739,9 @@ namespace Evidencija_putovanja_console_app
                                     break;
                                 case "5":
                                     Console.WriteLine("Izvještaji i analize");
+                                    Console.WriteLine("Unesite id korisnika: ");
+                                    int analysisId = CheckIntInput(Console.ReadLine());
+                                    UserAnalysis(analysisId);
                                     break;
                                 default:
                                     if (travelsMenuChoice != "0")
