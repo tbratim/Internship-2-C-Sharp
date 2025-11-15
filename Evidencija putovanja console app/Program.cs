@@ -111,13 +111,13 @@ namespace Evidencija_putovanja_console_app
                 DateTime dateOfTrip = CheckDateInput(Console.ReadLine());
                 Console.WriteLine("Unesite kilometražu: ");
                 double kilometers = CheckDoubleInput(Console.ReadLine());
-                Console.WriteLine("Unesite potrošeno gorivo: ");
+                Console.WriteLine("Unesite potrošeno gorivo (L): ");
                 double fuelUsed = CheckDoubleInput(Console.ReadLine());
-                Console.WriteLine("Unesite cijenu po litri: ");
+                Console.WriteLine("Unesite cijenu po litri (EUR): ");
                 double priceOfFuel = CheckDoubleInput(Console.ReadLine());
-                double spent = fuelUsed * priceOfFuel;
+                double totalSpent = fuelUsed * priceOfFuel;
 
-                var tripAttributes = new Tuple<DateTime, double, double, double, double>(dateOfTrip, kilometers, fuelUsed, priceOfFuel, spent);
+                var tripAttributes = new Tuple<DateTime, double, double, double, double>(dateOfTrip, kilometers, fuelUsed, priceOfFuel, totalSpent);
                 trips[idTrip] = tripAttributes;
                 var listOfTrips = new List<object>();
                 listOfTrips.Add(trips[idTrip]);
@@ -125,6 +125,7 @@ namespace Evidencija_putovanja_console_app
                 Console.WriteLine("Putovanje uspješno dodano!");
                 return listOfTrips;
                 //dodat putovanje određenom korisniku
+                //ispise system ...
             }
 
             static void DeleteUserById(int id)
@@ -197,7 +198,7 @@ namespace Evidencija_putovanja_console_app
                     Console.WriteLine($"Korisnik {name} {surname} ne postoji!");
                 }
             }
-            //EditUser to be fixed
+            //EditUser fixed
             static void EditUser(int id)
             {
                 if (users.Count == 0)
@@ -217,19 +218,22 @@ namespace Evidencija_putovanja_console_app
                 //list of trips dodat?
                 Console.WriteLine($"Uređujete korisnika: {user.Item1} {user.Item2} ({user.Item3:yyyy-MM-dd})");
                 Console.WriteLine("Upišite novo ime (ostavi prazno za bez promjene): ");
-                if (Console.ReadLine().Trim() != "")
+                string nameInput = Console.ReadLine().Trim();
+                if (nameInput != "")
                 {
-                    editedName = Console.ReadLine().Trim();
+                    editedName = nameInput;
                 }
                 Console.WriteLine("Upišite novo prezime (ostavi prazno za bez promjene): ");
-                if (Console.ReadLine().Trim() != "")
+                string surnameInput = Console.ReadLine().Trim();
+                if (surnameInput != "")
                 {
-                    editedSurname = Console.ReadLine().Trim();
+                    editedSurname = surnameInput;
                 }
                 Console.WriteLine("Upišite novi datum rođenja (ostavi prazno za bez promjene): ");
-                if (Console.ReadLine().Trim() != "")
+                string dateInput = Console.ReadLine().Trim();
+                if (dateInput != "")
                 {
-                    editedDateOfBirth=CheckDateInput(Console.ReadLine());
+                    editedDateOfBirth=CheckDateInput(dateInput);
                 }
                 Console.WriteLine($"Jeste li sigurni da želite urediti korisnika {user.Item1} {user.Item2} (da/ne)? ");
                 var confirmation = Console.ReadLine().ToLower().Trim();
@@ -265,9 +269,7 @@ namespace Evidencija_putovanja_console_app
                         case "1":
                             Console.WriteLine("Korisnici abecedno po prezimenu:");
                             foreach (var user in sortedBySurname)
-                            {
                                 Console.WriteLine($"{user.Key} - {user.Value.Item1} - {user.Value.Item2} - {user.Value.Item3:yyyy-MM-dd}");
-                            }
                             break;
                         case "2":
                             Console.WriteLine("Korisnici stariji od 20:");
@@ -338,7 +340,7 @@ namespace Evidencija_putovanja_console_app
                     if (trip.Item5 > maxPrice)
                         tripCounter++;
                 }
-                Console.WriteLine($"Jeste li sigurni da želite obrisati {tripCounter} putovanja skupljih od {maxPrice} (da/ne)? ");
+                Console.WriteLine($"Jeste li sigurni da želite obrisati {tripCounter} putovanja skupljih od {maxPrice} eura (da/ne)? ");
                 var confirmation = Console.ReadLine().ToLower().Trim();
                 while (confirmation != "da" && confirmation != "ne")
                 {
@@ -372,7 +374,7 @@ namespace Evidencija_putovanja_console_app
                     if (trip.Item5 > minPrice)
                         tripCounter++;
                 }
-                Console.WriteLine($"Jeste li sigurni da želite obrisati {tripCounter} putovanja jeftinijih od {minPrice} (da/ne)? ");
+                Console.WriteLine($"Jeste li sigurni da želite obrisati {tripCounter} putovanja jeftinijih od {minPrice} eura (da/ne)? ");
                 var confirmation = Console.ReadLine().ToLower().Trim();
                 while (confirmation != "da" && confirmation != "ne")
                 {
@@ -391,6 +393,65 @@ namespace Evidencija_putovanja_console_app
                     Console.WriteLine("Putovanja uspješno izbrisana!");
                 }
                 else Console.WriteLine("Brisanje putovanja obustavljeno.");
+            }
+
+            static void EditTrip(int id)
+            {
+                if (trips.Count == 0)
+                {
+                    Console.WriteLine("Ne postoje putovanja za izbrisati.");
+                    return;
+                }
+                while (!trips.ContainsKey(id))
+                {
+                    Console.WriteLine("Id putovanja ne postoji!");
+                    id = CheckIntInput(Console.ReadLine());
+                }
+                var trip = trips[id];
+                var editedTripDate = trip.Item1;
+                var editedKilometers = trip.Item2;
+                var editedFuelUsed = trip.Item3;
+                var editedPriceOfFuel = trip.Item4;
+                Console.WriteLine($"Uređujete putovanje: ({trip.Item1:yyyy-MM-dd}) {trip.Item2} {trip.Item3} {trip.Item4} {trip.Item5}");
+                Console.WriteLine("Upišite novi datum (ostavi prazno za bez promjene): ");
+                string tripDateInput = Console.ReadLine().Trim();
+                if (tripDateInput != "")
+                {
+                    editedTripDate = CheckDateInput(tripDateInput);
+                }
+                Console.WriteLine("Upišite prijeđenu kilometražu (ostavi prazno za bez promjene): ");
+                string kilometersInput = Console.ReadLine().Trim();
+                if (kilometersInput != "")
+                {
+                    editedKilometers = CheckDoubleInput(kilometersInput);
+                }
+                Console.WriteLine("Upišite potrošeno gorivo (ostavi prazno za bez promjene): ");
+                string fuelUsedInput = Console.ReadLine().Trim();
+                if (fuelUsedInput != "")
+                {
+                    editedFuelUsed = CheckDoubleInput(fuelUsedInput);
+                }
+                Console.WriteLine("Upišite potrošeno gorivo (ostavi prazno za bez promjene): ");
+                string priceOfFuelInput = Console.ReadLine().Trim();
+                if (priceOfFuelInput != "")
+                {
+                    editedPriceOfFuel = CheckDoubleInput(priceOfFuelInput);
+                }
+                var editedTotalSpent = editedPriceOfFuel * editedFuelUsed;
+                Console.WriteLine($"Jeste li sigurni da želite urediti putovanje {trip.Item1:yyyy-MM-dd}) {trip.Item2} Km {trip.Item3} L {trip.Item4} EUR (da/ne)? ");
+                var confirmation = Console.ReadLine().ToLower().Trim();
+                while (confirmation != "da" && confirmation != "ne")
+                {
+                    Console.WriteLine("Neispravan unos!\nJeste li sigurni da želite urediti putovanje (da/ne)? ");
+                    confirmation = Console.ReadLine().ToLower().Trim();
+                }
+                if (confirmation == "da")
+                {
+                    var editedTrip = new Tuple<DateTime, double, double, double, double>(editedTripDate, editedKilometers, editedFuelUsed, editedPriceOfFuel, editedTotalSpent);
+                    trips[id] = editedTrip;
+                    Console.WriteLine($"Putovanje uspješno uređeno: ({editedTrip.Item1:yyyy-MM-dd}) {editedTrip.Item2} {editedTrip.Item3} {editedTrip.Item4} {editedTrip.Item5}");
+                }
+                else Console.WriteLine("Uređivanje putovanja obustavljeno.");
             }
 
             var menuChoice = "";
@@ -465,7 +526,8 @@ namespace Evidencija_putovanja_console_app
                         var travelsMenuChoice = "";
                         do
                         {
-                            Console.WriteLine("Putovanja:\n1 - Unos novog putovanja\n2 - Brisanje putovanja\n3 - Uređivanje postojećeg putovanja\n4 - Pregled svih putovanja\n5 - Izvještaji i analize\n0 - Povratak na glavni izbornik\n");
+                            Console.WriteLine("Putovanja:\n1 - Unos novog putovanja\n2 - Brisanje putovanja\n3 - Uređivanje postojećeg putovanja");
+                            Console.WriteLine("4 - Pregled svih putovanja\n5 - Izvještaji i analize\n0 - Povratak na glavni izbornik");
                             travelsMenuChoice = Console.ReadLine();
                             Console.WriteLine("Odabir: {0}", travelsMenuChoice);
                             switch (travelsMenuChoice)
@@ -508,6 +570,9 @@ namespace Evidencija_putovanja_console_app
                                     break;
                                 case "3":
                                     Console.WriteLine("Uređivanje postojećeg putovanja");
+                                    Console.WriteLine("Unesite id putovanja kojeg želite urediti: ");
+                                    int editTripId = CheckIntInput(Console.ReadLine());
+                                    EditTrip(editTripId);
                                     break;
                                 case "4":
                                     Console.WriteLine("Pregled svih putovanja");
