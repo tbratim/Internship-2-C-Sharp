@@ -528,16 +528,16 @@ namespace Evidencija_putovanja_console_app
                 double totalKm = 0;
                 double totalSpending = 0;
                 double maxFuelUsed = 0;
-                var longestTrip = (Tuple<int, DateTime, double, double, double, double>)user.Item4[0];
+                var longestTrip = (Tuple<DateTime, double, double, double, double>)user.Item4[0];
                 foreach (var trip in user.Item4)
                 {
-                    var tripToTuple = (Tuple<int, DateTime, double, double, double, double>)trip;
-                    totalFuelUsed += tripToTuple.Item4;
-                    totalKm += tripToTuple.Item3;
-                    totalSpending += tripToTuple.Item6;
+                    var tripToTuple = (Tuple<DateTime, double, double, double, double>)trip;
+                    totalFuelUsed += tripToTuple.Item3;
+                    totalKm += tripToTuple.Item2;
+                    totalSpending += tripToTuple.Item5;
                     if (tripToTuple.Item3 > maxFuelUsed)
                     {
-                        maxFuelUsed = tripToTuple.Item3;
+                        maxFuelUsed = tripToTuple.Item2;
                         longestTrip = tripToTuple;
                     }
                 }
@@ -545,16 +545,16 @@ namespace Evidencija_putovanja_console_app
                 Console.WriteLine($"Ukupna potrošnja goriva: {totalFuelUsed}");
                 Console.WriteLine($"Ukupni troškovi goriva: {totalSpending}");
                 Console.WriteLine($"Prosječna potrošnja goriva u L/100km: {averageFuelConsumption}");
-                Console.WriteLine($"Putovanje s najvećom potrošnjom goriva:\nPutovanje #{longestTrip.Item1}\nDatum: {longestTrip.Item2:yyyy-MM-dd}\n"+
-                    $"Kilometraža: {longestTrip.Item3}\nGorivo: {longestTrip.Item4} L\nCijena goriva: {longestTrip.Item5}\nTrošak: {longestTrip.Item6}");
+                Console.WriteLine($"Putovanje s najvećom potrošnjom goriva:\nDatum: {longestTrip.Item1:yyyy-MM-dd}\n"+
+                    $"Kilometraža: {longestTrip.Item2}\nGorivo: {longestTrip.Item3} L\nCijena goriva: {longestTrip.Item4}\nTrošak: {longestTrip.Item5}");
                 Console.WriteLine("Pregled putovanja po datumima:\nUnesite datum: ");
                 DateTime dateForTrips = CheckDateInput(Console.ReadLine());
-                Console.WriteLine($"Putovanja na datum {dateForTrips:yyyy-MM-dd}");
+                Console.WriteLine($"Putovanja na datum {dateForTrips:yyyy-MM-dd}: ");
                 foreach (var trip in user.Item4)
                 {
-                    var tripToTuple = (Tuple<int, DateTime, double, double, double, double>)trip;
-                    if (dateForTrips.Date == tripToTuple.Item2.Date)
-                        Console.WriteLine($"Putovanje #{tripToTuple.Item1}\n{tripToTuple.Item3}km - {tripToTuple.Item4} L - {tripToTuple.Item5} EUR - {tripToTuple.Item6} EUR");
+                    var tripToTuple = (Tuple<DateTime, double, double, double, double>)trip;
+                    if (dateForTrips.Date == tripToTuple.Item1.Date)
+                        Console.WriteLine($"Putovanje: \n{tripToTuple.Item2}km - {tripToTuple.Item3} L - {tripToTuple.Item4} EUR - {tripToTuple.Item5} EUR");
                 }
                 Console.ReadKey();
             }
